@@ -380,13 +380,15 @@ def paste_clipboard_files(save_path=None):
                 return [line[7:] for line in data.splitlines() if line.startswith("file://")]
 
             # plain text or nothing
-            if any("text/plain" in t for t in types_list):
-                proc = subprocess.Popen(
-                    query_command[:] + ["text/plain"] + ([suffix] if suffix else []),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.DEVNULL,
-                )
-                return proc.communicate()[0].decode().strip("\n")
+            for data_type in types_list:
+                if "text/plain" in data_type:
+                    proc = subprocess.Popen(
+                        query_command[:] + [data_type] + ([suffix] if suffix else []),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.DEVNULL,
+                    )
+                    return proc.communicate()[0].decode().strip("\n")
+                return []
 
         except FileNotFoundError:
             logger.warning("Cant paste: wl-clipboard or xclip not found on system")

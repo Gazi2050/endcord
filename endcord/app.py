@@ -4150,6 +4150,8 @@ class Endcord:
             paths = peripherals.pillow_paste_image()
         else:
             self.update_extra_line("No media support.")
+        if not paths:
+            self.update_extra_line("No data found in clipboard.")
         if isinstance(paths, str):
             active_channel = self.active_channel["channel_id"]
             for num, channel in enumerate(self.input_store):
@@ -4163,8 +4165,6 @@ class Endcord:
             for path in paths:
                 self.upload_threads.append(threading.Thread(target=self.upload, daemon=True, args=(path, )))
                 self.upload_threads[-1].start()
-            if not paths:
-                self.update_extra_line("No data found in clipboard.")
 
 
     def get_chat_last_message_id(self):
@@ -5202,7 +5202,7 @@ class Endcord:
         except ValueError:   # new emoji
             emoji_string = utils.emojize(first)
 
-        if emoji.is_emoji(emoji_string):   # standard emoji
+        if utils.is_emoji(emoji_string):   # standard emoji
             if emoji_string not in my_present_emojis:
                 if len(all_reactions) < 20 or add_to_existing:
                     success = self.discord.send_reaction(
