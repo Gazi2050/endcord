@@ -28,6 +28,7 @@ else:
     BACKSPACE = curses.KEY_BACKSPACE
 BUTTON4_PRESSED = getattr(curses, "BUTTON4_PRESSED", 0)
 BUTTON5_PRESSED = getattr(curses, "BUTTON5_PRESSED", 0)
+ALT_SPACE = "⠀"   # U+2800 - braille pattern blank
 match_word = re.compile(r"\w")
 match_split = re.compile(r"[^\w']")
 match_spaces = re.compile(r" {3,}")
@@ -1579,7 +1580,9 @@ class TUI():
                             self.win_tree.addch(y, 4, self.tree_dm_status, curses.color_pair(20))
                 y += 1
                 while y < h:
-                    self.win_tree.insstr(y, 0, "\n", curses.color_pair(1))
+                    # curses optimizes scrolling, so large empty sace will cause flickering when scrolling member list
+                    # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+                    self.win_tree.insstr(y, 0, f"{" " if y%2 else ALT_SPACE}\n", curses.color_pair(1))
                     y += 1
                 while num < len(self.tree_format):   # continue loop to detect mentions bellow visible area
                     if (self.tree_format[num] % 100) // 10 == 2:
@@ -1822,10 +1825,13 @@ class TUI():
             self.inline_media_drawer.clear_images(force=True)
 
         with self.lock:
+            h, w = self.screen.getmaxyx()
+            if self.bordered:   # restore left border because chat probably messed it
+                common_h = h - 4 - self.have_title - (bool(self.win_extra_window) * self.extra_window_h + 1) - bool(self.win_extra_line)
+                self.screen.vline(2, w - self.member_list_width, curses.ACS_VLINE, common_h - 2, curses.color_pair(self.default_color))
             self.member_list = member_list
             self.member_list_format = member_list_format
             if member_list and not self.disable_drawing:
-                h, w = self.screen.getmaxyx()
                 if reset:
                     self.mlist_selected = -1
                     self.mlist_index = 0
@@ -1884,7 +1890,9 @@ class TUI():
 
                 y += 1
                 while y < h:
-                    self.win_member_list.insstr(y, 0, "\n", curses.color_pair(1))
+                    # curses optimizes scrolling, so large empty sace will cause flickering when scrolling tree
+                    # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+                    self.win_member_list.insstr(y, 0, f"{" " if y%2 else ALT_SPACE}\n", curses.color_pair(1))
                     y += 1
                 self.win_member_list.noutrefresh()
                 self.need_update.set()

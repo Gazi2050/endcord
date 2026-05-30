@@ -27,6 +27,7 @@ TREE_EMOJI_REPLACE = "▮"
 TIME_DIVS = [1, 60, 3600, 86400, 2678400, 31190400]
 TIME_UNITS = ["second", "minute", "hour", "day", "month", "year"]
 SPLIT_AFTER_TIME = 10 * 60
+ALT_SPACE = "⠀"   # U+2800 - braille pattern blank
 
 match_emoji = re.compile(r"(?<!\\):[^:\s]+:")
 match_d_emoji = re.compile(r"<(a?):([a-zA-Z0-9_]+):(\d+)>")
@@ -1160,6 +1161,18 @@ class ChatGenerator:
         else:
             self.pre_edited_len = 0
 
+        # curses optimizes scrolling, so large empty sace in chat will cause flickering when scrolling tree / member list
+        # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+        # same thing is in member list but if member list is closed, here must be too
+        fixed_content = (self.format_newline
+            .replace("%timestamp", self.placeholder_timestamp)
+            .split("%content")[0]
+            .split("%global_name")[0]
+            .split("%username")[0]
+        )
+        self.chat_constant_space_idx = len(fixed_content.split(" ")[0]) if fixed_content else None
+        self.member_list = False
+
 
     def set_my_id(self, my_id):
         """If my_id is not available on init"""
@@ -1662,11 +1675,16 @@ class ChatGenerator:
                     scale = min(min(self.placeholder_images, smallest_h) / h, min(max_length - 1 - self.newline_len, smallest_w) / w, 1)
                     h = round(h * scale)
                     w = round(w * scale) - 1
-                    if spoiler:
+                    if self.chat_constant_space_idx is None:   # insert here if cant in newline format
+                        content += f"\n<{MARKER}:{num_e}>"
+                        for line in range(h - 1):
+                            content += f"\n{" " if line % 2 else ALT_SPACE}"
+                            if spoiler:
+                                content += " " * w
+                    elif spoiler:
                         content += f"\n<{MARKER}:{num_e}>" + ("\n" + " " * w) * (h - 1)
                     else:
                         content += f"\n<{MARKER}:{num_e}>" + "\n " * (h - 1)
-                    # content += f"\n<{MARKER}:{num_e}>" + ("\n" + "#" * w) * (h - 1)
                     image_locations.append((h, w, spoiler))
         for sticker in message["stickers"]:
             sticker_type = sticker["format_type"]
@@ -1913,6 +1931,8 @@ class ChatGenerator:
             new_line = lazy_replace(new_line, "%global_name", lambda: normalize_string(global_name, self.limit_username, emoji_safe=True))
             new_line = lazy_replace(new_line, "%timestamp", lambda: generate_timestamp(message["timestamp"], self.format_timestamp, self.convert_timezone))
             new_line = new_line.replace("%content", full_content)
+            if not self.member_list and self.chat_constant_space_idx is not None and line_num % 2:
+                new_line = new_line[:self.chat_constant_space_idx] + ALT_SPACE + new_line[self.chat_constant_space_idx+1:]
 
             # correct index for each new line
             content_index_correction = self.newline_len + extra_newline_len - 1 + (not split_on_space) - newline_index - quote_nl*2
@@ -2019,11 +2039,10 @@ class ChatGenerator:
             line_num += 1
 
         # add images to ranges in chat_map relative to this message base line and add format for spoiler images
-        #
         start_y = len(chat_map) + 1
-        len_images = len(image_locations)
+        num_images = len(image_locations) - 1
         for idx_i, image_location in enumerate(reversed(image_locations)):   # y is relative to message base line
-            num_i = len_images - idx_i - 1
+            num_i = num_images - idx_i
             start_y -= image_location[0] + 1
             # search for marker on this line and above
             marker = f"<{MARKER}:{num_i}>"
@@ -2037,7 +2056,7 @@ class ChatGenerator:
             spoiler = image_location[2]
             h = image_location[0]
             w = image_location[1]
-            chat[start_y-shift] = chat[start_y-shift][:self.newline_len] + (" " * w) if spoiler else " "
+            chat[start_y-shift] = chat[start_y-shift][:self.newline_len] + ((" " * w) if spoiler else " ")
             for idx_rel in range(image_location[0]):
                 idx = start_y - shift + idx_rel
                 chat_map[idx][5][5].append(self.newline_len)   # start_x
