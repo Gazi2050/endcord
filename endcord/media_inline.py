@@ -83,6 +83,12 @@ class InlineMedia:
         threading.Thread(target=self.downloader, daemon=True).start()
 
 
+    def stop(self):
+        """Stop all threads"""
+        self.run = False
+        self.download_queue.put([None] * 8)
+
+
     def force_redraw(self):
         """When curses screen.clear(), images are cleared too so redraw them"""
         self.force_draw = True
@@ -232,6 +238,8 @@ class InlineMedia:
         """Downloader for inline media"""
         while self.run:
             message, embed_idx, image_id, rel_y, rel_x, h, w, draw = self.download_queue.get()
+            if not message:
+                break
 
             # get message and image info
             embed = message["embeds"][embed_idx]
@@ -278,6 +286,7 @@ class InlineMedia:
             if not draw:
                 continue
 
+            # draw
             chat_y, chat_x = self.tui.win_chat.getbegyx()
             chat_h = self.tui.chat_hw[0]
             with self.tui.lock:

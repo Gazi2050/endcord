@@ -383,6 +383,8 @@ class Endcord:
                 self.rpc.stop()
             if self.enable_game_detection:
                 self.game_detection.stop()
+            if self.inline_media:
+                self.inline_media_drawer.stop()
             self.message_send_queue.put((None, None, None))
             self.notify_queue.put((None, None))
             self.run = False
@@ -537,7 +539,7 @@ class Endcord:
     def profiling_auto_exit(self):
         """Thread that waits then exits cleanly, so profiler (vprof) can process data"""
         time.sleep(20)
-        self.run = False
+        self.exit()
 
 
     def message_sender(self):
@@ -2014,7 +2016,6 @@ class Endcord:
 
             # quit
             elif action == 34:
-                self.run = False
                 self.exit()
 
             # toggle member list
@@ -5580,7 +5581,7 @@ class Endcord:
         elif assist_type == 3:   # emoji
             self.assist_found = search.search_emojis(
                 self.gateway.get_emojis(),
-                self.discord.get_settings_proto(2)["favoriteEmojis"].get("emojis", []),
+                self.discord.get_settings_proto(2).get("favoriteEmojis", {}).get("emojis", []),
                 self.state["favorite_emojis"],
                 self.premium,
                 self.active_channel["guild_id"],
@@ -5718,7 +5719,7 @@ class Endcord:
 
             elif assist_word.lower().startswith("gif "):
                 self.assist_found = search.search_gif(
-                    self.discord.get_settings_proto(2)["favoriteGifs"].get("gifs", []),
+                    self.discord.get_settings_proto(2).get("favoriteGifs", {}).get("gifs", []),
                     assist_word[4:],
                     limit=self.assist_limit,
                     score_cutoff=self.assist_score_cutoff,
@@ -5778,7 +5779,7 @@ class Endcord:
 
         elif assist_type == 8:   # gif search
             self.assist_found = search.search_gif(
-                self.search_results if self.search_results else self.discord.get_settings_proto(2)["favoriteGifs"].get("gifs", []),
+                self.search_results if self.search_results else self.discord.get_settings_proto(2).get("favoriteGifs", {}).get("gifs", []),
                 assist_word,
                 limit=self.assist_limit,
                 score_cutoff=self.assist_score_cutoff,
