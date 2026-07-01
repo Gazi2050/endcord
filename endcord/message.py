@@ -8,6 +8,7 @@ from datetime import datetime
 PLATFORM_TYPES = ("Desktop", "Xbox", "Playstation", "IOS", "Android", "Nitendo", "Linux", "MacOS")
 CONTENT_TYPES = ("Played Game", "Watched Media", "Top Game", "Listened Media", "Listened Session", "Top Artist", "Custom Status", "Launched Activity", "Leaderboard")
 DISCORDAPP_CDN_ATTACHMENTS = ("https://cdn.discordapp.com/attachments/", "https://media.discordapp.net/attachments")
+GIF_PROVIDERS = ("tenor.com/", "giphy.com/", "klipy.com/")
 match_discord_attachment_url = re.compile(r"https:\/\/(?:cdn|media)\.discord(?:app)?\.(?:com|net)\/attachments\/\d+\/\d+\/([^\?\s)\]>]+)(?:\?.+)?")
 match_url = re.compile(r"https?:\/\/[\w-]+(\.[\w-])+[^\s)\]>]*")
 
@@ -39,15 +40,16 @@ def prepare_embeds(embeds, message_content):
         skip_main_url = False
         media = []
         embed_type = embed.get("type", "unknown")
+        url = embed.get("url", "")
 
-        if "url" in embed and "tenor.com/" not in embed["url"] and "giphy.com/" not in embed["url"]:
+        if url and not any(domain in url for domain in GIF_PROVIDERS):
             # dont repeat unless its not discord attachment and handle x=twitter
             if (embed_type != "rich" and ".discordapp." not in embed["url"]) or embed["url"] not in message_content.replace("https://x.com", "https://twitter.com") or embed_type == "image":
-                content.append(embed["url"])
-                main_url = embed["url"]
+                content.append(url)
+                main_url = url
                 skip_main_url = True
 
-        if "author" in embed and "name" in embed["author"] and "giphy.com/" not in embed.get("url", ""):
+        if "name" in embed.get("author", {}) and not any(domain in url for domain in GIF_PROVIDERS):
             name = embed["author"]["name"]
             if name not in embed.get("title", "") and name not in embed.get("description", ""):
                 content.append(quote(name))
@@ -97,6 +99,8 @@ def prepare_embeds(embeds, message_content):
         content = "\n".join(content)
         if content:
             if content == message_content:
+                message_content = ""
+            if message_content.startswith("https://") and " " not in message_content and "\n" not in message_content and any(domain in content for domain in GIF_PROVIDERS):
                 message_content = ""
             ready_data = {
                 "type": embed_type,

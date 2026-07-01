@@ -631,7 +631,7 @@ def search_gif(gifs, query, limit=50, score_cutoff=15, fav=True, cmd=True):
             score = score_cutoff + int(order) if fav else 0
         if score < worst_score and query:
             continue
-        heapq.heappush(results, (("Favorite: " if fav else "Tenor: ") + formatted, ("gif " if cmd else "") + url, score, preview))
+        heapq.heappush(results, (("Favorite: " if fav else "Klipy: ") + formatted, ("gif " if cmd else "") + url, score, preview))
         if len(results) > limit:
             heapq.heappop(results)
             worst_score = results[0][2]

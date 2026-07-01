@@ -3024,7 +3024,7 @@ class TUI():
                     pass
                 elif self.tree_selected == -1 and key in (1, 2, 3, 8, 9, 10, 17, 18, 30, 31):
                     pass
-                else:
+                elif key < 500:
                     return self.return_input_code(key)
 
             if key in self.command_bindings:

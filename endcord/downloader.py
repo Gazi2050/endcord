@@ -39,20 +39,6 @@ def get_tenor_gif(url, header=None, proxy=None):
     return None
 
 
-def convert_tenor_gif_type(url, content_type):
-    """
-    Convert tenor video link between types:
-    0 - gif HD
-    1 - gif UHD
-    2 - mp4 Video
-    """
-    if content_type == 1:
-        return url.replace("AAAPo/", "AAAAC/")[:-3] + "gif"
-    if content_type == 2:
-        return url
-    return url.replace("AAAPo/", "AAAAd/")[:-3] + "gif"
-
-
 def extract_file_name(headers, url_path):
     """Extract file name from Content-Disposition header, fallback to extracting from url + extension from Content-Type"""
     content_disposition = headers.get("Content-Disposition")

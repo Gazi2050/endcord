@@ -97,8 +97,8 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     Too low value will cause visual "glitches". Increasing value will add latency between performed action and visual feedback.
 - `extra_line_delay = 5`  
     How long will temporary extra line pop-ups remain before they are auto-removed.
-- `tenor_gif_type = 1`  
-    Type of the media when gif is downloaded from tenor:  
+- `gif_download_type = 1`  
+    Type of the media when gif is downloaded from tenor (klippy and giphy cant be changed):  
     0 - gif HD  
     1 - gif UHD  
     2 - mp4 Video  

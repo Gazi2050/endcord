@@ -42,6 +42,7 @@ from endcord import (
     utils,
 )
 from endcord.assist_data import ABOUT, COMMAND_ASSISTS, SEARCH_HELP_TEXT
+from endcord.message import GIF_PROVIDERS
 
 support_media = (
     importlib.util.find_spec("av") is not None and
@@ -134,7 +135,7 @@ class Endcord:
         self.username_role_colors = config["username_role_colors"]
         self.save_summaries = config["save_summaries"]
         self.fun = config["easter_eggs"]
-        self.tenor_gif_type = config["tenor_gif_type"]
+        self.gif_download_type = config["gif_download_type"]
         self.get_members = config["member_list"]
         self.member_list_auto_open = config["member_list_auto_open"]
         self.member_list_width = config["member_list_width"]
@@ -1060,7 +1061,7 @@ class Endcord:
         self.set_channel_seen(   # right after update_chat so new_unreads is determined
             channel_id,
             self.get_chat_last_message_id(),
-            ack=not(self.tui.get_chat_selected()[1]),   # ack only if its not scrolled up
+            ack=not (self.tui.get_chat_selected()[1]),   # ack only if its not scrolled up
             force_remove_notify=True,
         )
         self.close_extra_window()
@@ -1352,6 +1353,8 @@ class Endcord:
 
     def add_to_command_history(self, command):
         """Add command to command history and limit its size"""
+        if command.startswith("gif https://"):
+            command = "gif"
         if not self.command_history or self.command_history[-1] != command:
             self.command_history.append(command)
             if len(self.command_history) > self.limit_command_history:
@@ -2441,7 +2444,7 @@ class Endcord:
                 self.restore_input_text = (input_text, "standard")
                 if self.extra_line == self.permanent_extra_line and not self.extra_window_open:
                     if self.in_call:
-                        mouse_x = self.tui.get_x_line_clicked() + (not(self.tui.bordered)) * 2
+                        mouse_x = self.tui.get_x_line_clicked() + (not (self.tui.bordered)) * 2
                         len_extra_line = len(self.extra_line) + 1
                         if len_extra_line - 15 < mouse_x <= len_extra_line - 9:   # CLICK ON OUTPUT VOL
                             if self.state["volume_out"]:
@@ -2466,7 +2469,7 @@ class Endcord:
                         elif len_extra_line - 7 < mouse_x <= len_extra_line:   # LEAVE
                             self.leave_call()
                     elif self.most_recent_incoming_call or self.active_channel["channel_id"] in self.incoming_calls:
-                        mouse_x = self.tui.get_x_line_clicked() + (not(self.tui.bordered))*2
+                        mouse_x = self.tui.get_x_line_clicked() + (not (self.tui.bordered))*2
                         len_extra_line = len(self.extra_line) + 1
                         if len_extra_line - 18 < mouse_x <= len_extra_line - 9:   # ACCEPT
                             if not self.in_call:
@@ -3762,7 +3765,7 @@ class Endcord:
         elif cmd_type == 41:   # GIF
             search_text = cmd_args.get("search_text", None)
             search_text = search_text.strip()
-            if search_text.startswith("https://tenor.com/"):
+            if search_text[8:].startswith("tenor.com/") or search_text.startswith("klipy.com/"):
                 self.insert_into_input_store(search_text)
             elif not self.search:
                 reset = False
@@ -4861,8 +4864,9 @@ class Endcord:
 
     def download_file(self, url, move=True, open_media=False, open_move=False, copy=False):
         """Thread that downloads and moves file to downloads dir"""
-        if url.startswith("https://media.tenor.com/"):
-            url = downloader.convert_tenor_gif_type(url, self.tenor_gif_type)
+        is_gif = any(domain in url for domain in GIF_PROVIDERS)
+        if is_gif:
+            url = utils.convert_gif_type(url, self.gif_download_type)
         destination = None
         from_cache = False
         match = re.search(match_youtube, url)
@@ -4930,7 +4934,7 @@ class Endcord:
         if open_media:
             if not from_cache and destination:
                 self.cached_downloads.append([orig_url, destination])
-            self.open_media(destination, bool(open_media - 1))
+            self.open_media(destination, bool(open_media - 1), loop=is_gif)
 
         if copy:
             peripherals.copy_file_to_clipboard(destination)
@@ -5557,7 +5561,7 @@ class Endcord:
         self.stop_assist(close=False)
         extra_title, extra_body, extra_format = formatter.generate_extra_window_call(
             self.call_participants,
-            not(self.state["volume_in"]),
+            not (self.state["volume_in"]),
             self.colors,
             self.tui.get_dimensions()[2][1],
         )
@@ -5747,7 +5751,7 @@ class Endcord:
         content, channel_id, author_id, mentions, has, max_id, min_id, pinned = parser.search_string(text)
         self.search = (content, channel_id, author_id, mentions, has, max_id, min_id, pinned)
         logger.debug(f"Starting search with params: {self.search}")
-        is_dm = not(self.active_channel["guild_id"])
+        is_dm = not (self.active_channel["guild_id"])
         total_search_messages, self.search_results = self.discord.search(
             self.active_channel["channel_id"] if is_dm else self.active_channel["guild_id"],
             channel=is_dm,
@@ -5786,7 +5790,7 @@ class Endcord:
         """Repeat search and add more messages"""
         self.add_running_task("Searching", 4)
         logger.debug(f"Extending search with params: {self.search}")
-        is_dm = not(self.active_channel["guild_id"])
+        is_dm = not (self.active_channel["guild_id"])
         total_search_messages, search_chunk = self.discord.search(
             self.active_channel["channel_id"] if is_dm else self.active_channel["guild_id"],
             channel=is_dm,
@@ -6187,7 +6191,7 @@ class Endcord:
                 assist_word,
                 limit=self.assist_limit,
                 score_cutoff=self.assist_score_cutoff,
-                fav=not(self.search_results),
+                fav=not (self.search_results),
                 cmd=False,
             )
             for line in self.assist_found:
@@ -6420,7 +6424,7 @@ class Endcord:
         return messages
 
 
-    def open_media(self, path, force_native=False):
+    def open_media(self, path, force_native=False, loop=False):
         """
         If TUI mode: prevent other UI updates, draw media and wait for input, after quitting - update UI
         If native mode: just open the file/url with xdg-open
@@ -6454,7 +6458,7 @@ class Endcord:
                 self.terminal_media = media.TerminalMedia(self.config, self.keybindings, font_ratio=self.font_ratio)
             self.update_extra_line()
             self.tui.pause_curses()
-            self.terminal_media.play(path)
+            self.terminal_media.play(path, loop=loop)
             time.sleep(0.1)
             self.tui.resume_curses()
         else:
@@ -7987,7 +7991,7 @@ class Endcord:
         self.gateway.request_voice_gateway(
             guild_id,
             channel_id,
-            not(self.state["volume_in"]),
+            not (self.state["volume_in"]),
             video=False,
             preferred_regions=self.discord.get_best_voice_region(),
         )
@@ -8955,7 +8959,7 @@ class Endcord:
             # check if new chat chunks needs to be downloaded in any direction
             if not self.forum and self.messages:
                 if (selected_line == 0 or text_index == 0) and self.get_chat_last_message_id() != self.last_message_id:
-                    self.get_chat_chunk(past=False, scroll=not(text_index == 0 and selected_line <= 2))
+                    self.get_chat_chunk(past=False, scroll=not (text_index == 0 and selected_line <= 2))
                 elif (selected_line >= len(self.chat) - 1 or self.tui.get_chat_scrolled_top()) and not self.chat_end:
                     self.get_chat_chunk(past=True, scroll=self.tui.get_chat_scrolled_top())
             elif self.forum and not self.forum_end:

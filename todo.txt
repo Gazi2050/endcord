@@ -24,6 +24,7 @@ Localization
 
 EXTENSIONS:
 endcord-termux-rich
+endcord-custom-emoji
 endcord-undelete
 endcord-message-replace
 endcord-image-pfp

@@ -117,7 +117,7 @@ Enter the code here to verify your login.
  {PART_HINT}
 """
 FAILED_AUTH_IP_TEXT = ("Failed to authorize this IP address." + CHECK_LOG, "", ANY_KEY_TEXT)
-NETWORK_ERROR_TEXT = ("Network error occured.", "", ANY_KEY_TEXT)
+NETWORK_ERROR_TEXT = ("Network error occurred.", "", ANY_KEY_TEXT)
 SELECT_MFA_TEXT = (
     "Select multi-factor authentication method:",
     "", "", "", "",
@@ -616,7 +616,7 @@ def manage_profile(screen, have_keyring, config, editing_profile=None):
                     elif status == 7:   # captha required
                         key_prompt(screen, CAPTCHA_REQUIRED_TEXT)
                     elif status == 8:   # network error
-                        key_prompt(screen, (UNABLE_LOGIN_TEXT, "Network error occured, check logfor more info.", "", ANY_KEY_TEXT))
+                        key_prompt(screen, (UNABLE_LOGIN_TEXT, "Network error occurred, check logfor more info.", "", ANY_KEY_TEXT))
             else:
                 prev_step()
 

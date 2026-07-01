@@ -394,6 +394,27 @@ def delete_old_files(directory, days, accessed=False):
             pass
 
 
+def convert_gif_type(url, content_type):
+    """
+    Convert tenor video link between types:
+    0 - gif HD
+    1 - gif UHD
+    2 - mp4 Video
+    """
+    if "tenor.com/" in url:
+        if content_type == 1:
+            return url.replace("AAAPo/", "AAAAC/")[:-3] + "gif"
+        if content_type == 2:
+            return url
+        return url.replace("AAAPo/", "AAAAd/")[:-3] + "gif"
+    # if "giphy.com/" in url:   # giphy doesnt provide other formats
+    #     return url
+    # if "klipy.com/" in url:   # klippy has completely random urls
+    #     logger.info(url)
+    #     return url
+    return url
+
+
 def get_base_path():
     """Get resource path"""
     if hasattr(sys, "_MEIPASS"):   # pyinstaller onefile

@@ -2169,7 +2169,7 @@ class ChatGenerator:
                     chat_format.append(fix_line_format(format_line, new_line))
                 except OverflowError:   # fallback if anyhing goes wrong
                     chat_format.append(fix_line_format_py(format_line, new_line))
-                    logger.error(f"An OverflowError occured in cython. Please report with this information: {repr(format_line)}, {repr(new_line)}")
+                    logger.error(f"An OverflowError occurred in cython. Please report with this information: {repr(format_line)}, {repr(new_line)}")
             line_num += 1
 
         # add images to ranges in chat_map relative to this message base line and add format for spoiler images
