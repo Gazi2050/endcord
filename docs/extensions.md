@@ -113,8 +113,8 @@ Method names can be searched in `./endcord/app.py` code to see where they are ex
 
 
 ## Adding a binding
-1. Add method `init_bindings` to extension class, it takes 1 argumet: `keybindings` - a dict: {keybinding_name: value}
-    - This is important only if adding chainged bindings.
+1. Add method `init_bindings` to extension class, it takes 1 argument: `keybindings` - a dict: {keybinding_name: value}
+    - This is important only if adding chained bindings.
 2. Add method named `on_binding` to extension class, it takes 3 arguments: `key`, `is_command` (bool), `is_forum` (bool)
     - `key` will be same thing as printed in keybinding resolver. `is_command` means that currently command is being typed. `is_forum` means that forum is currently opened.
     - Test if `key` is same as specific keybinding that was defined in `init_bindings`.
@@ -170,7 +170,7 @@ See [Example dependency installer](#example-dependency-installer), it is enough 
 Refer to [this](https://docs.discord.com/developers/events/gateway#gateway-intents) for more info on intents.  
 4. Next step is to register application commands.  
 To register a command, use `app.discord.bot_register_command(command_obj, guild_id=None, is_json=False)` in the extension. It returns `command_id` for the registered/updated command.  
-If `guild_id` is ommited then this will be global command.  
+If `guild_id` is omitted then this will be global command.  
 `command_obj` is python object, but json string can be passed too, just set `is_json=True`.  
 `command_obj` is send as-is without any checks, refer to [this](https://docs.discord.com/developers/interactions/application-commands#application-command-object) for more info on how to write commands.  
 Command is registered only once, registering command with same name will overwrite old one.  

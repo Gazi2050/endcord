@@ -32,7 +32,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     After how many **minutes** to automatically switch to idle status. Set to `None` or `0` to disable.  
     Note: this only detects when window is **not focused**.
 - `notification_when_focused = False`  
-    Wether to receive desktop notifications when terminal is not focused.
+    Whether to receive desktop notifications when terminal is not focused.
 - `remove_previous_notification = True`  
     Remove previous desktop notification that's coming from same DM/Channel.
 - `ack_throttling = 5`  
@@ -60,7 +60,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
 - `assist = True`  
     Assist when typing @username, @role, #channel, :emoji:, ;sticker;
  - `assist_swap_binding = True`  
-    Wether to swap `chat_up` and `chat_down` with `extra_up` and `extra_down` when popup window is open.
+    Whether to swap `chat_up` and `chat_down` with `extra_up` and `extra_down` when popup window is open.
 - `cursor_on_time = 0.7`  
     Time in seconds the cursor stays ON. Set to `None` or `0` to disable cursor blinking.
 - `cursor_off_time = 0.5`  
@@ -139,14 +139,14 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
 - `native_file_dialog = "Auto"`  
     Use system native file dialog when uploading files.  
     Available options: `True` - use system native file picker, `False` - use internal file picker, `"Auto"` - use yazi if available, fallback to system native.
-- `save_sumamries = True`  
+- `save_summaries = True`  
     Whether to save summaries to disk. Disable to save RAM and reduce disk writes.
 - `default_stickers = True`  
     Download discord default stickers and add them to sticker search. Disable to save some RAM.
 - `only_one_open_server = False`  
     Force only one open server at a time in tree. When one is opened other is closed, excluding DMs.
 - `remember_collapsed_channels = False`  
-    Wether to persist collapsed state for forums and channels with threads.
+    Whether to persist collapsed state for forums and channels with threads.
 - `assist_skip_app_command = False`  
     Skip assist for app_name when typing app command. Instead, show all app commands and insert app_name with selected command.
 - `fallback_keybinding_parser = False`  
@@ -181,7 +181,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
 - `linux_ringtone_incoming = "phone-incoming-call"`  
     Sound played when there is incoming call. Linux only. Set to `None` to disable. Sound names can be found in `/usr/share/sounds/freedesktop/stereo`, without extension. Set this and custom_ringtone_incoming to `None` to disable sound entirely.
 - `custom_ringtone_incoming = None`  
-    Path to audi file played when there is incoming call. Set to `None` to disable. The file will be played in loop.
+    Path to audio file played when there is incoming call. Set to `None` to disable. The file will be played in loop.
 - `linux_ringtone_outgoing = "phone-outgoing-call"`  
     Sound played when there is outgoing call. Linux only. Set to `None` to disable. Sound names can be found in `/usr/share/sounds/freedesktop/stereo`, without extension.
 - `custom_ringtone_outgoing = None`  
@@ -226,7 +226,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     Setting wrong user agent can make you more suspicious to discord spam filter! Make sure user agent string matches your OS.
 - `send_x_super_properties = True`  
     Enable sending X-Super-Properties header containing system information. May reduce risk suspicion of client.  
-    Disabling this may solve message sending issues ("reurned error code 400" in log).  
+    Disabling this may solve message sending issues ("returned error code 400" in log).  
 - `proxy = None`  
     Proxy URL to use, it must be this format: `protocol://host:port`, example: `socks5://localhost:1080`.  
     Supported proxy protocols: `http`, `socks5`.  
@@ -234,7 +234,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     Voice and video calls will only work with socks5 proxy and it must support UDP ASSOCIATE.  
 - `custom_host = None`  
     Custom host to connect to, like `old.server.spacebar.chat`. Set to `None` to use default host (`discord.com`)
-- `capbilities = None`  
+- `capabilities = None`  
     DO NOT CHANGE, unless you know what you're doing. This might cause some features to not work or client to get unstable.  
     If bot token is used, then this will be used as `intents` parameter instead. See [discord bot documentation](https://discord.com/developers/docs/events/gateway#gateway-intents).  
     Default capabilities: `30717`, default intents: `50364033`.  
@@ -351,7 +351,7 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     Characters used to indicate rich presence activity in member list.  
     Order of characters: Playing, Streaming, Listening, Watching, Competing.
 - `smart_chat_lines = True`  
-    Wether to extend lines in chat, left of reactions, in grouped messages only. Will use `tree_drop_down_intersect` and `tree_drop_down_vline`.
+    Whether to extend lines in chat, left of reactions, in grouped messages only. Will use `tree_drop_down_intersect` and `tree_drop_down_vline`.
 - `username_role_colors = True`  
     Allow `%username` and `%global_name` to have color of primary role.
 - `dynamic_name_len = True`  

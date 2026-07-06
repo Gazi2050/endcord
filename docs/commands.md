@@ -48,7 +48,7 @@
     Copy link of selected message to clipboard.
 - `goto_mention` / `goto_mention [num]`  
     Go to channel/message mentioned in selected message.
-- `cancel *[download/1/uploa/2/attachment/3]`  
+- `cancel *[download/1/upload/2/attachment/3]`  
     Cancel all downloads and/or uploads. Can use `cancel 1` or `cancel download`... Use just `cancel` to cancel both downloads and uploads.
 - `external_edit`  
     Open external editor to type message in it.
@@ -125,7 +125,7 @@
     Change volume for input devices in voice call. Set to 0 to mute. Value can be `0-200%`, above 100 is boost. Persisted across sessions.  
     `+` and `-` can be prefixed to value so it will increment it - useful for binding this command to a key.  
 - `voice_set_volume_output`  
-    Change volume for output devices in voice call. Set to 0 to mute. Value can be `0-200%` above 100 is boost. Persisted accross sessions.  
+    Change volume for output devices in voice call. Set to 0 to mute. Value can be `0-200%` above 100 is boost. Persisted across sessions.  
     `+` and `-` can be prefixed to value so it will increment it - useful for binding this command to a key.  
 - `voice_set_input_device [name]`  
     Set input device from provided list of devices. Selection is persisted across sessions. If device is unavailable, default one will be selected automatically.
@@ -186,6 +186,6 @@
 ## Commands that can be used only in command-bindings
 Special commands available only for command-bindings (macros).
 - `sleep [seconds]`  
-    Sleep for specified numbr of seconds. If some macro fails to execute, adding `sleep 0.1` between the two commands may help.
+    Sleep for specified number of seconds. If some macro fails to execute, adding `sleep 0.1` between the two commands may help.
 - `type [text]`  
-    "Type" specifid text at cursor position in input line in current context.
+    "Type" specified text at cursor position in input line in current context.

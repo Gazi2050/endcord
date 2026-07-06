@@ -116,7 +116,7 @@ Some keybindings are used by terminals or OS itself, so they are by default rebo
 - Popup window - select item
 - Member list - view member profile
 - Input line - select a word
-- Tabs (subtitle) line - if tab is temprary (italics) will be made permanent
+- Tabs (subtitle) line - if tab is temporary (italics) will be made permanent
 
 ### Double click in chat on:
 - Message time - start replying to message
@@ -132,7 +132,7 @@ Some keybindings are used by terminals or OS itself, so they are by default rebo
 
 ### Other
 - Scroll up/down in all windows
-- Middle click on chaneel in tree to add it to new tab
+- Middle click on channel in tree to add it to new tab
 - Middle click on tab (in subtitle line) to remove it
 
 On Windows, double click isn't working, use triple click instead.
