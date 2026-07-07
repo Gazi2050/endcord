@@ -79,7 +79,7 @@ def replace_spaces_dash(text):
 def safe_insch(screen, y, x, character, color):
     """
     Safely insert character into line.
-    This is because curses.insch will throw exception for weird charcters.
+    This is because curses.insch will throw exception for weird characters.
     curses.insstr will not, but is slower.
     """
     try:
@@ -779,7 +779,7 @@ class TUI():
 
 
     def get_chat_scrolled_top(self):
-        """Check wether chat scrolling hit the top end"""
+        """Check whether chat scrolling hit the top end"""
         return self.chat_scrolled_top
 
 
@@ -837,7 +837,7 @@ class TUI():
 
 
     def get_focused(self):
-        """Get wether chat is focused or not"""
+        """Get whether chat is focused or not"""
         if uses_pgcurses:
             return curses.focused
         return self.focused and not self.disable_drawing
@@ -1037,7 +1037,7 @@ class TUI():
 
 
     def store_input_selected(self):
-        """Get selected text from imput line"""
+        """Get selected text from input line"""
         input_select_start = self.input_select_start
         input_select_end = self.input_select_end
         if input_select_start > input_select_end:
@@ -1224,7 +1224,7 @@ class TUI():
                     status_txt_r += " "
                     status_txt_l = self.status_txt_l[: max(w - (len(status_txt_r) + 2), 0)]
                     status_txt_l = status_txt_l + " " * (w - len(status_txt_l) - len(status_txt_r))
-                    status_format = []   # no format for now in comapct mode
+                    status_format = []   # no format for now in compact mode
                 status_line = status_txt_l + status_txt_r
                 text_l_len = len(status_txt_l)
                 for tab in self.status_txt_r_format:
@@ -1242,7 +1242,7 @@ class TUI():
                 # add spaces to end of line
                 status_txt_l = self.status_txt_l[:w - 1 - 2*self.bordered]
                 status_line = status_txt_l + " " * (w - len(status_txt_l))
-                status_format = []   # no format for now in comapct mode
+                status_format = []   # no format for now in compact mode
 
             if status_format:
                 draw_formatted_line(self.win_status_line, 0, 0, status_line, status_format, self.default_color if self.bordered else 17, self.attrib_map, self.lock)
@@ -1293,7 +1293,7 @@ class TUI():
                 else:
                     title_txt_r = title_txt_r[: max(w - (len(title_txt_r) + 2), 0)] + " "
                     title_txt_l = title_txt_l + " " * (w - len(title_txt_l) - len(title_txt_r))
-                    title_txt_l_format = []   # no format for now in comapct mode
+                    title_txt_l_format = []   # no format for now in compact mode
                 title_line = title_txt_l + title_txt_r
                 text_l_len = len(title_txt_l)
                 title_format = title_txt_l_format
@@ -1310,7 +1310,7 @@ class TUI():
             else:
                 title_txt_l = title_txt_l[:w - 1 - 2*self.bordered]
                 title_line = title_txt_l + " " * (w - len(title_txt_l))
-                title_format = []   # no format for now in comapct mode
+                title_format = []   # no format for now in compact mode
 
             if title_format:
                 draw_formatted_line(self.win_title_line, 0, 0, title_line, title_format, self.default_color if self.bordered else 12, self.attrib_map, self.lock)
@@ -1408,7 +1408,7 @@ class TUI():
             self.screen.addstr(y, x, parts[0], curses.color_pair(color if color else self.default_color))
             if len(parts) > 1:
                 self.screen.addstr(y, x + len(parts[0]), " " + parts[1], curses.color_pair(self.default_color))
-        else:   # no format for now in comapct mode
+        else:   # no format for now in compact mode
             self.screen.addstr(y, x, title_line, curses.color_pair(12) | self.attrib_map[12])
         self.screen.noutrefresh()
         self.need_update.set()
@@ -1507,7 +1507,7 @@ class TUI():
             abs_x = x + w
             total_lines = len(self.chat_buffer)
 
-            # clculate thumb size and pos
+            # calculate thumb size and pos
             if total_lines <= h:
                 thumb_size = 0
                 thumb_pos = 0
@@ -1711,8 +1711,8 @@ class TUI():
                             self.win_tree.addch(y, 4, self.tree_dm_status, curses.color_pair(20))
                 y += 1
                 while y < h:
-                    # curses optimizes scrolling, so large empty sace will cause flickering when scrolling member list
-                    # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+                    # curses optimizes scrolling, so large empty space will cause flickering when scrolling member list
+                    # this is prevented by vertically alternating space and alt_space character (U+2800 - braille pattern blank)
                     self.win_tree.insstr(y, 0, f"{" " if y % 2 else ALT_SPACE}\n", curses.color_pair(1))
                     y += 1
                 while num < len(self.tree_format):   # continue loop to detect mentions bellow visible area
@@ -1730,7 +1730,7 @@ class TUI():
 
 
     def draw_tree_mini(self):
-        """Draw minimised channel tree"""
+        """Draw minimized channel tree"""
         mentions = 0
         for code in self.tree_format:
             if 300 <= code < 499 and (code % 100) // 10 == 2:
@@ -2035,8 +2035,8 @@ class TUI():
                         draw_formatted_line(self.win_member_list, y, 0, line, line_format, self.default_color, self.attrib_map, self.lock)
                 y += 1
                 while y < h:
-                    # curses optimizes scrolling, so large empty sace will cause flickering when scrolling tree
-                    # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+                    # curses optimizes scrolling, so large empty space will cause flickering when scrolling tree
+                    # this is prevented by vertically alternating space and alt_space character (U+2800 - braille pattern blank)
                     self.win_member_list.insstr(y, 0, f"{" " if y % 2 else ALT_SPACE}\n", curses.color_pair(1))
                     y += 1
                 self.win_member_list.noutrefresh()
@@ -2171,7 +2171,7 @@ class TUI():
 
 
     def update_title_tree(self, text):
-        """Update tree title line tex"""
+        """Update tree title line text"""
         if self.have_title_tree and text != self.title_tree_txt:
             self.title_tree_txt = text
             if not self.disable_drawing:

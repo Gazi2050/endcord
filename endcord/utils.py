@@ -117,7 +117,7 @@ def detect_runtime():
     return "source"
 
 
-def get_build_info(cythonized, uses_pgcurses, support_media, support_call):
+def get_build_info(cythonized, uses_pgcurses, support_image, support_media, support_call):
     """Write build info string"""
     build_info = [detect_runtime()]
     if cythonized:
@@ -126,6 +126,8 @@ def get_build_info(cythonized, uses_pgcurses, support_media, support_call):
         build_info.append("windowed")
     if support_media:
         build_info.append("media support")
+    elif support_image:
+        build_info.append("image support")
     if support_call:
         build_info.append("call support")
     custom_build = " (CUSTOM BUILD)" if importlib.util.find_spec("_bz2") is None else ""

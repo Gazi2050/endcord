@@ -2262,6 +2262,7 @@ class Endcord:
                 if self.command_history:
                     if self.command_history_index > 0:
                         self.command_history_index -= 1
+                    self.tui.misspelled = []
                     self.restore_input_text = (self.command_history[self.command_history_index], "command")
                 else:
                     self.restore_input_text = (input_text, "command")
@@ -2271,10 +2272,12 @@ class Endcord:
                     if self.command_history_index < history_len:
                         self.command_history_index += 1
                     else:
+                        self.tui.misspelled = []
                         self.restore_input_text = (self.command_history_stored_current, "command")
                         self.command_history_stored_current = None
                         self.command_history_index += 1
                         continue
+                    self.tui.misspelled = []
                     self.restore_input_text = (self.command_history[self.command_history_index], "command")
                 else:
                     self.restore_input_text = (input_text, "command")
