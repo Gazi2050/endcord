@@ -8,7 +8,6 @@ import os
 import sys
 import threading
 import time
-import traceback
 
 try:
     import orjson as json
@@ -304,7 +303,7 @@ class GameDetection:
     def game_detector(self):
         """
         Main thread that:
-        - checks and downloads detetcable applications list on startup
+        - checks and downloads detectable applications list on startup
         - checks for added/removed application processes
         - detects games
         - builds and stores/removes activity for each game
@@ -379,7 +378,7 @@ class GameDetection:
                     self.cache[proc_path] = [app_id, app_name, app_path, int(time.time())]
                     cache_changed = True
 
-                # skip unindentified
+                # skip unidentified
                 if not app_id:
                     continue
                 if app_id in self.blacklist:

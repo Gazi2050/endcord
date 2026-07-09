@@ -105,7 +105,7 @@ def ver_to_tuple(v):
 
 
 def check_for_update(current_version, owner, repo, proxy=None):
-    """Chek specified repo for update"""
+    """Check specified repo for update"""
     try:
         connection = peripherals.get_connection("api.github.com", timeout=10, proxy=proxy)
         connection.request("GET", f"/repos/{owner}/{repo}/releases/latest", headers=HEADER)
@@ -194,7 +194,7 @@ def download_gh_repo(owner, repo, save_path, tag=None, proxy=None):
         if response.status in (301, 302, 303, 307, 308):
             location = response.getheader("Location")
             if not location:
-                logger.error("Redirect without lcation")
+                logger.error("Redirect without location")
                 return 4
             redirects += 1
             connection.close()

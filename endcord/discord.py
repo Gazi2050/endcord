@@ -23,8 +23,6 @@ except ImportError:
     except ImportError:
         import json
 
-import socks
-
 from endcord import peripherals, protobuf, protobuf_schemata, utils
 from endcord.message import prepare_messages
 
@@ -136,7 +134,7 @@ class Discord():
             self.header.pop("User-Agent", None)
             self.header.pop("X-Super-Properties", None)
         self.user_agent = user_agent
-        self.proxy = urllib.parse.urlsplit(proxy)
+        self.proxy = proxy
 
         self.connection = None
         self.connection_time = 0
@@ -199,23 +197,29 @@ class Discord():
         else:
             ssl_context = ssl.create_default_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-
-        if self.proxy.scheme:
-            if self.proxy.scheme.lower() == "http":
-                connection = http.client.HTTPSConnection(self.proxy.hostname, self.proxy.port, timeout=timeout, context=ssl_context)
+        if not self.proxy:
+            return http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
+        try:
+            if self.proxy.startswith("http://") or self.proxy.startswith("http://"):
+                proxy = urllib.parse.urlsplit(self.proxy)
+                if self.proxy.startswith("http://"):
+                    connection = http.client.HTTPConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
+                else:
+                    connection = http.client.HTTPSConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
                 connection.set_tunnel(host, port=port)
-            elif "socks" in self.proxy.scheme.lower():
-                proxy_sock = socks.socksocket()
-                proxy_sock.set_proxy(socks.SOCKS5, self.proxy.hostname, self.proxy.port)
-                proxy_sock.settimeout(timeout)
-                proxy_sock.connect((host, port))
-                proxy_sock = ssl_context.wrap_socket(proxy_sock, server_hostname=host)
-                # proxy_sock.do_handshake()   # seems like its not needed
+            elif self.proxy.startswith("socks5://"):
+                from python_socks.sync import Proxy
+                proxy = Proxy.from_url(self.proxy)
+                raw_sock = proxy.connect(dest_host=host, dest_port=port, timeout=10)
+                ssl_context = ssl.create_default_context()
+                proxy_sock = ssl_context.wrap_socket(raw_sock, server_hostname=host)
                 connection = http.client.HTTPSConnection(host, port, timeout=timeout + 5)   # extra time for tor
                 connection.sock = proxy_sock
             else:
+                logger.warn(f"Invalid proxy: {self.proxy}")
                 connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
-        else:
+        except Exception as e:
+            logger.warn(f"Error connecting to proxy {self.proxy}: {e}")
             connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
         return connection
 

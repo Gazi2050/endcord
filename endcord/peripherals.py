@@ -16,8 +16,6 @@ import time
 import urllib.parse
 import webbrowser
 
-import socks
-
 if sys.platform.startswith("android"):
     sys.platform = "linux"
 if "bsd" in sys.platform:
@@ -31,7 +29,7 @@ try:
     logger.info(APP_NAME)
 except (AttributeError, NameError):
     APP_NAME = "endcord"
-VERSION = "1.5.0"
+VERSION = "1.5.1"
 NO_NOTIFY_SOUND_DE = ("kde", "plasma")   # linux desktops without notification sound
 
 # platform specific code
@@ -158,6 +156,7 @@ def import_soundcard():
         if importlib.util.find_spec("soundcard") is not None:
             import soundcard
             return soundcard
+        logger.warning("Soundcard library not found, use endcord level=LITE or above")
         return None
     except (AssertionError, RuntimeError):
         logger.warning("Soundcard failed connecting to sound system")
@@ -591,27 +590,32 @@ def get_connection(host, port=443, timeout=2, proxy=None):
     else:
         ssl_context = ssl.create_default_context()
     ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-
     if not proxy:
-        proxy = ""
-    proxy = urllib.parse.urlsplit(proxy)
-    if proxy.scheme:
-        if proxy.scheme.lower() == "http":
-            connection = http.client.HTTPSConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
+        return http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
+    try:
+        if proxy.startswith("http://") or proxy.startswith("http://"):
+            proxy = urllib.parse.urlsplit(proxy)
+            if proxy.startswith("http://"):
+                connection = http.client.HTTPConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
+            else:
+                connection = http.client.HTTPSConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
             connection.set_tunnel(host, port=port)
-        elif "socks" in proxy.scheme.lower():
-            proxy_sock = socks.socksocket()
-            proxy_sock.set_proxy(socks.SOCKS5, proxy.hostname, proxy.port)
-            proxy_sock.settimeout(timeout)
-            proxy_sock.connect((host, port))
-            proxy_sock = ssl_context.wrap_socket(proxy_sock, server_hostname=host)
+        elif proxy.startswith("socks5://"):
+            from python_socks.sync import Proxy
+            proxy = Proxy.from_url(proxy)
+            raw_sock = proxy.connect(dest_host=host, dest_port=port, timeout=10)
+            ssl_context = ssl.create_default_context()
+            proxy_sock = ssl_context.wrap_socket(raw_sock, server_hostname=host)
             connection = http.client.HTTPSConnection(host, port, timeout=timeout + 5)   # extra time for tor
             connection.sock = proxy_sock
         else:
+            logger.warn(f"Invalid proxy: {proxy}")
             connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
-    else:
+    except Exception as e:
+        logger.warn(f"Error connecting to proxy {proxy}: {e}")
         connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
     return connection
+
 
 
 def find_aspell():
@@ -770,11 +774,11 @@ class Recorder():
             except Exception as e:
                 logger.warning(f"No microphone found. Error: {e}")
                 self.recording = False
-                return
+                return False
         else:
             logger.warning("Failed connecting to sound system")
             self.recording = False
-            return
+            return False
         with microphone.recorder(samplerate=48000, channels=1) as rec:
             while self.recording:
                 if timer >= 600:   # 10min limit
@@ -784,6 +788,7 @@ class Recorder():
                 audio_data = rec.record(numframes=48000)
                 self.audio_data.append(audio_data)
                 timer += 1
+        return True
 
 
     def start(self):
@@ -793,6 +798,8 @@ class Recorder():
             self.audio_data = []
             self.record_thread = threading.Thread(target=self.record, daemon=True)
             self.record_thread.start()
+            time.sleep(0.1)   # time for thread to try to import soundcard
+            return self.recording
 
 
     def stop(self):

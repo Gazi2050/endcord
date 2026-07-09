@@ -10,11 +10,11 @@ import random
 import socket
 import ssl
 import struct
+import sys
 import threading
 import time
 import urllib.parse
 
-import socks
 import websocket
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.Hash import SHA256
@@ -79,30 +79,38 @@ class Discord():
         if client_prop:
             self.header["X-Super-Properties"] = client_prop
         self.user_agent = user_agent
-        self.proxy = urllib.parse.urlsplit(proxy)
+        self.proxy = proxy
 
 
-    def get_connection(self, host, port, timeout=10):
+    def get_connection(self, host, port, timeout=2):
         """Get connection object and handle proxying"""
-        if self.proxy.scheme:
-            if self.proxy.scheme.lower() == "http":
-                connection = http.client.HTTPSConnection(self.proxy.hostname, self.proxy.port)
+        if sys.platform == "darwin":
+            import certifi
+            ssl_context = ssl.create_default_context(cafile=certifi.where())
+        else:
+            ssl_context = ssl.create_default_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
+        if not self.proxy:
+            return http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
+        try:
+            if self.proxy.startswith("http://"):
+                proxy = urllib.parse.urlsplit(self.proxy)
+                connection = http.client.HTTPSConnection(proxy.hostname, proxy.port, timeout=timeout, context=ssl_context)
                 connection.set_tunnel(host, port=port)
-            elif "socks" in self.proxy.scheme.lower():
-                proxy_sock = socks.socksocket()
-                proxy_sock.set_proxy(socks.SOCKS5, self.proxy.hostname, self.proxy.port)
-                proxy_sock.settimeout(10)
-                proxy_sock.connect((host, port))
+            elif self.proxy.startswith("socks5://"):
+                from python_socks.sync import Proxy
+                proxy = Proxy.from_url(self.proxy)
+                raw_sock = proxy.connect(dest_host=host, dest_port=port, timeout=10)
                 ssl_context = ssl.create_default_context()
-                ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-                proxy_sock = ssl_context.wrap_socket(proxy_sock, server_hostname=host)
-                # proxy_sock.do_handshake()   # seems like its not needed
-                connection = http.client.HTTPSConnection(host, port, timeout=timeout + 5)
+                proxy_sock = ssl_context.wrap_socket(raw_sock, server_hostname=host)
+                connection = http.client.HTTPSConnection(host, port, timeout=timeout + 5)   # extra time for tor
                 connection.sock = proxy_sock
             else:
-                connection = http.client.HTTPSConnection(host, port)
-        else:
-            connection = http.client.HTTPSConnection(host, port, timeout=timeout)
+                logger.warn(f"Invalid proxy: {self.proxy}")
+                connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
+        except Exception as e:
+            logger.warn(f"Error connecting to proxy {self.proxy}: {e}")
+            connection = http.client.HTTPSConnection(host, port, timeout=timeout, context=ssl_context)
         return connection
 
 

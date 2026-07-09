@@ -29,7 +29,7 @@ if [[ "$3" = "curses" ]]; then
     else
         CURSES_TAG=$(git ls-remote --tags --refs https://github.com/ThomasDickey/ncurses-snapshots.git | awk -F/ '{print $3}' | sort -V | tail -n1)
     fi
-    echo "Building curses ${CURSES_TAG}"
+    echo "Building ncurses ${CURSES_TAG}"
     wget -nc "https://github.com/ThomasDickey/ncurses-snapshots/archive/refs/tags/${CURSES_TAG}.tar.gz" -O "ncurses-${CURSES_TAG}.tar.gz" || true
     tar xf "ncurses-${CURSES_TAG}.tar.gz"
     cd ncurses-snapshots-*

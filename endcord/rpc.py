@@ -10,7 +10,6 @@ import struct
 import sys
 import threading
 import time
-import traceback
 
 if sys.platform == "win32":
     import pywintypes

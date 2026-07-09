@@ -228,9 +228,9 @@ Note: always put string in `""`. To use `"` inside the string escape it like thi
     Enable sending X-Super-Properties header containing system information. May reduce risk suspicion of client.  
     Disabling this may solve message sending issues ("returned error code 400" in log).  
 - `proxy = None`  
-    Proxy URL to use, it must be this format: `protocol://host:port`, example: `socks5://localhost:1080`.  
-    Supported proxy protocols: `http`, `socks5`.  
-    Be warned! Using proxy (especially TOR) might make you more suspicious to discord.  
+    Proxy URL to use, it must be this format: `protocol://host:port`, example: `socks5://localhost:1080`. Or `protocol://user:password@host:port`.  
+    Supported proxy protocols: `http`, `https`, `socks5`.  
+    WARNING: Using proxy (especially TOR) might make you more suspicious to discord.  
     Voice and video calls will only work with socks5 proxy and it must support UDP ASSOCIATE.  
 - `custom_host = None`  
     Custom host to connect to, like `old.server.spacebar.chat`. Set to `None` to use default host (`discord.com`)

@@ -234,7 +234,7 @@ def find_timestamp(full_string, timestamp):
 
 
 def format_kilo(n, dec=1):
-    """Convert integer to string with K sufix"""
+    """Convert integer to string with K suffix"""
     if n < 1000:
         return str(n)
     value = n / 1000
@@ -1127,7 +1127,7 @@ def get_global_name(data, use_nick):
 
 
 def replace_backreferences(text):
-    """Repace sed like backreference with python re like brckreference """
+    """Replace sed like backreference with python re like backreference"""
     def replacer(match):
         num = match.group(1)
         return f"\\g<{num}>"
@@ -1309,7 +1309,7 @@ class ChatGenerator:
             .replace("%timestamp", self.placeholder_timestamp)
             .replace("%edited", "")
             .replace("%app", "")
-            # .replace("%content", "")   # will be splitted on %content
+            # .replace("%content", "")   # will be split on %content
         ).split("%content")[0]
         self.default_pre_content_len = len(placeholder_message)
         self.timestamp_range = find_timestamp(placeholder_message, self.placeholder_timestamp)
@@ -1357,8 +1357,8 @@ class ChatGenerator:
         else:
             self.pre_edited_len = 0
 
-        # curses optimizes scrolling, so large empty sace in chat will cause flickering when scrolling tree / member list
-        # this is prevented by verically alternating space and alt_space character (U+2800 - braille pattern blank)
+        # curses optimizes scrolling, so large empty space in chat will cause flickering when scrolling tree / member list
+        # this is prevented by vertically alternating space and alt_space character (U+2800 - braille pattern blank)
         # same thing is in member list but if member list is closed, here must be too
         fixed_content = (self.format_newline
             .replace("%timestamp", self.placeholder_timestamp)
@@ -1385,7 +1385,7 @@ class ChatGenerator:
             format_reactions (reactions added to main message)
         chat = [one_message_line, ...]
         chat_format = [[[default_color_id], [color_id, start, end], ...], ...]
-        chat_map = [(msg_num, username:(st, end), is_reply, reactions:((st, end, emji_id), ...), date:(st, end), ranges), ...]
+        chat_map = [(msg_num, username:(st, end), is_reply, reactions:((st, end, emoji_id), ...), date:(st, end), ranges), ...]
             ranges = (url:(st, end, idx), spoiler:(st, end, idx), emoji:(st, end, id), mentions:(st, end, id), channels:(st, end, id), images:(y, x, h, w))
         change_id hints that only one specific message got changed, change_type hints type of that change: 1 - append, 2 - delete, 3 - edit.
         """
@@ -1420,7 +1420,7 @@ class ChatGenerator:
                 self.shift_chat_map(-1, 1)
                 self.insert_data_into(self.chat_map, message_chat_map, 0)
 
-            elif change_type in (2, 20):   # fully delete messsage / delete when remove pending
+            elif change_type in (2, 20):   # fully delete message / delete when remove pending
                 self.remove_message(change_id)   # change_id is msg_num in this case
                 if change_id != 0 and change_type == 2:   # have to reconstruct the message bellow, to update separator lines
                     # skipped when pending because its simple message update
@@ -2221,7 +2221,7 @@ class ChatGenerator:
                     format_line.append(self.color_mention_chat_edited + [len_new_line - self.len_edited, len_new_line])
                 try:
                     chat_format.append(fix_line_format(format_line, new_line))
-                except OverflowError:   # fallback if anyhing goes wrong
+                except OverflowError:   # fallback if anything goes wrong
                     chat_format.append(fix_line_format_py(format_line, new_line))
             else:
                 format_line = self.color_newline[:]
@@ -2235,7 +2235,7 @@ class ChatGenerator:
                     format_line.append([*self.color_chat_edited, len_new_line - self.len_edited, len_new_line])
                 try:
                     chat_format.append(fix_line_format(format_line, new_line))
-                except OverflowError:   # fallback if anyhing goes wrong
+                except OverflowError:   # fallback if anything goes wrong
                     chat_format.append(fix_line_format_py(format_line, new_line))
                     logger.error(f"An OverflowError occurred in cython. Please report with this information: {repr(format_line)}, {repr(new_line)}")
             line_num += 1
@@ -2350,7 +2350,7 @@ def generate_status_line(my_user_data, my_status, unread_count, typing, active_c
         %server
         %channel
         %channel_no_tab - no text if there are tabs
-        %action   # replying/editig/deleting
+        %action   # replying/editing/deleting
         %task   # currently running long task
         %tabs
         %slowmode   # 'slowmode {time}'
@@ -2564,7 +2564,7 @@ def generate_tab_string(channel_cache, active_channel_id, read_state, format_tab
         %server
     """
     tabs_separated = []
-    tab_string_map = []   # [[start, end, tab_num], ...]   # tab_num = -1 - arrow left -2 - arrow rignt
+    tab_string_map = []   # [[start, end, tab_num], ...]   # tab_num = -1 - arrow left -2 - arrow right
     trimmed_left = False
     default_color = colors[0]
 
@@ -2819,7 +2819,7 @@ def generate_extra_line_upload(attachments, selected, max_len, colors):
 
 
 def generate_extra_line_ring(caller_name, max_len, bordered, colors):
-    """Generate extra line containing iformation about incoming call"""
+    """Generate extra line containing information about incoming call"""
     max_len = max_len - bordered * 3
     color_standout = colors[9]
     left_text = f"{caller_name} is calling you, use commands: voice_*"
@@ -2845,7 +2845,7 @@ def generate_extra_line_ring(caller_name, max_len, bordered, colors):
 
 
 def generate_extra_line_call(call_participants, volume_in, volume_out, max_len, bordered, rtt, colors):   # noqa
-    """Generate extra line containing iformation about ongoing call"""
+    """Generate extra line containing information about ongoing call"""
     max_len = max_len - bordered * 3
     color_standout = colors[9]
     left_text = "In the call: You"

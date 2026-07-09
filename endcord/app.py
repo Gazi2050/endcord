@@ -4306,7 +4306,7 @@ class Endcord:
             about = (ABOUT
                 .replace("%ver", peripherals.VERSION)
                 .replace("%year", datetime.now().date().strftime("%Y"))
-                .replace("%build", utils.get_build_info(cythonized, uses_pgcurses, support_media, support_call))
+                .replace("%build", utils.get_build_info(cythonized, uses_pgcurses, support_image, support_media, support_call))
                 )
             self.chat, self.chat_format, self.chat_map = formatter.generate_about(
                 about,
@@ -5046,9 +5046,12 @@ class Endcord:
 
     def start_recording(self):
         """Start recording audio message"""
-        recorder.start()
-        self.recording = True
-        self.update_extra_line("RECORDING, Esc to cancel, Enter to send", timed=False)
+        recording = recorder.start()
+        if recording:
+            self.recording = True
+            self.update_extra_line("RECORDING, Esc to cancel, Enter to send", timed=False)
+        else:
+            self.update_extra_line("Failed starting recorder, see log for more info", color=20)
 
 
     def stop_recording(self, cancel=False):

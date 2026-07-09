@@ -25,7 +25,7 @@ def generate_timestamp(timestamp, timestamp_format, unix=False):
 
 
 def quote(text):
-    """prefix '> ' to text and to each newline"""
+    """Prefix '> ' to text and to each newline"""
     return f"> {text.replace("\n", "\n> ")}"
 
 
@@ -347,7 +347,7 @@ def prepare_components(components):
             elif button_type == 5:   # purchase button
                 text.append("*Button: purchase_button_disabled*")
             else:
-                text.append("*Button: unknown_butotn_disabled*")
+                text.append("*Button: unknown_button_disabled*")
         elif comp_type == 3:   # STRING_SELECT
             selected = None
             for option in component["options"]:

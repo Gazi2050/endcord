@@ -311,7 +311,8 @@ But endcord may crash at any time. Further, each host may have different spam fi
 Whether endcord will work or crash depends on hosts api implementation, the more different from discord it is, greater is the risk of a crash. If endcord crashes - its hosts fault. Do not report bugs related to this.
 
 ### Termux
-Endcord cant be built in termux, so to run it: first install python >= 3.12 and `uv`, then clone this repo, cd to folder and run it from source: `uv run main.py` (it will take some time to download and build numpy and orjson). To skip waiting for some dependencies, or if it fails building them run: `uv remove numpy soundcard soundfile orjson pycryptodome`.  
+Endcord cant be built in termux, so to run it: first install python >= 3.12 and `uv`, then clone this repo, setup env to "MICRO" level: `python --nobuild --level=MICRO` (one time), and run it: `uv run main.py`.  
+Setting up environment for higer levels will probably fail because these dependencies will have to be built for arm architecture.  
 To enable android notifications simply run `pkg install termux-api` and install Termux:API app. Vibration is disabled by default, to enable it: run endcord at least once, then in Termux:Api notification settings enable vibration for endcord notifications.  
 Notifications will work as ling as endcord is running, so it might be necessary for termux to "Acquire wakelock".  
 
@@ -322,15 +323,12 @@ To prevent extension injection (malware can modify endcord config and inject ext
 
 ## Installing
 ### Linux
-- Pre-built binaries (built with nuitka using clang) are available in releases  
-    Binaries are built on Ubuntu-like distro with `--custom-python --nuitka --clang` build script options, meaning they are maximally optimized.
-- Arch Linux (AUR) (OFFICIAL):
+- Pre-built binaries (**recommended**) are available in releases  
+    Binaries are built on Ubuntu-like distro with `--custom-python --nuitka` build script options with clang, meaning they are maximally optimized.
+- Arch Linux (AUR):
     - `yay -S endcord` - full version with media support, larger executable
     - `yay -S endcord-lite` - lite version without voice calls and media support
     - `-git` versions will build from source, with latest changes
-- Gentoo Linux (GURU):
-    - `emerge --ask net-im/endcord` - full version installed from source (not built)
-    - `emerge --ask net-im/endcord-bin` - prebuilt full binary
 - [Build](#building) endcord, then copy built executable to system:  
     `sudo cp dist/endcord /usr/local/bin/`
 - Install script (installs binary from latest release or updates existing):
@@ -384,7 +382,7 @@ Third party endcord forks may add features that can lead to account ban, contain
 
 ## Building
 To see all build script options, run: `python build.py -h`.  
-To build endcord-lite, add `--lite` flag. No voice calls and ascii media, slightly less RAM usage, smaller executable, faster startup.  
+To build endcord-lite, add `--level=LITE` flag. No voice calls and terminal media, slightly less RAM usage, smaller executable, faster startup.  
 To build into directory, not as a single executable, add `--onedir` flag. Will speed up startup.  
 To build with Nuitka, add `--nuitka` flag. More optimized, smaller executable, long compile time. See [Nuitka](#nuitka) for more info.  
 If compiler is not available, or built binary is failing, try building with `--nocython`, which will produce slightly less optimized binaries.  

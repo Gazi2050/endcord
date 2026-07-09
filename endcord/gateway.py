@@ -2,6 +2,7 @@
 # Source-available under the Endcord License. See LICENSE for terms.
 # Redistribution of modified versions is not permitted.
 
+from endcord import peripherals
 import base64
 import gc
 import http.client
@@ -25,7 +26,6 @@ except ImportError:
     except ImportError:
         import json
 
-import socks
 import websocket
 
 from endcord import debug, perms, protobuf, protobuf_schemata
@@ -82,7 +82,7 @@ class Gateway():
                 self.host = host_obj.path
         else:
             self.host = DISCORD_HOST
-
+        self.user_agent = user_agent
         self.header = [
             "Connection: keep-alive, Upgrade",
             "Sec-WebSocket-Extensions: permessage-deflate",
@@ -101,7 +101,7 @@ class Gateway():
         self.client_prop = client_prop
         self.init_time = time.time() * 1000
         self.token = token
-        self.proxy = urllib.parse.urlsplit(proxy)
+        self.proxy = proxy
         self.bot = self.token.startswith("Bot")
         self.run = True
         self.stop_event = threading.Event()
@@ -281,13 +281,16 @@ class Gateway():
                 ssl_context = ssl.create_default_context()
             ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
             self.ws = websocket.WebSocket(sslopt={"context": ssl_context})
-            if self.proxy.scheme:
+            if self.proxy:
+                proxy = urllib.parse.urlsplit(self.proxy)
+                scheme = proxy.scheme
                 self.ws.connect(
                     gateway_url + "/?v=9&encoding=json&compress=zlib-stream",
                     header=self.header,
-                    proxy_type=self.proxy.scheme,
-                    http_proxy_host=self.proxy.hostname,
-                    http_proxy_port=self.proxy.port,
+                    proxy_type="socks5h" if scheme == "socks5" else "http" if scheme == "https" else scheme,
+                    http_proxy_host=proxy.hostname,
+                    http_proxy_port=proxy.port,
+                    http_proxy_auth=(proxy.username, proxy.password) if proxy.username else None,
                 )
             else:
                 self.ws.connect(gateway_url + "/?v=9&encoding=json&compress=zlib-stream", header=self.header)
@@ -317,35 +320,10 @@ class Gateway():
 
     def connect(self):
         """Create initial connection to Discord gateway"""
-        # get proxy
-        if self.proxy.scheme:
-            if self.proxy.scheme.lower() == "http":
-                connection = http.client.HTTPSConnection(self.proxy.hostname, self.proxy.port)
-                connection.set_tunnel(self.host, port=443)
-            elif "socks" in self.proxy.scheme.lower():
-                proxy_sock = socks.socksocket()
-                proxy_sock.set_proxy(socks.SOCKS5, self.proxy.hostname, self.proxy.port)
-                proxy_sock.connect((self.host, 443))
-                if sys.platform == "darwin":
-                    import certifi
-                    ssl_context = ssl.create_default_context(cafile=certifi.where())
-                else:
-                    ssl_context = ssl.create_default_context()
-                ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
-                proxy_sock = ssl_context.wrap_socket(proxy_sock, server_hostname=self.host)
-                proxy_sock.do_handshake()   # seems like its not needed
-                connection = http.client.HTTPSConnection(self.host, 443)
-                connection.sock = proxy_sock
-            else:
-                logger.warning("Invalid proxy, continuing without proxy")
-                connection = http.client.HTTPSConnection(self.host, 443)
-        else:
-            connection = http.client.HTTPSConnection(self.host, 443)
-
-        # get gateway url
         try:
-            # subscribe works differently in v10
-            connection.request("GET", "/api/v9/gateway")
+            header = {"Authorization": self.token, "Priority": "u=1", "User-Agent": self.user_agent}
+            connection = peripherals.get_connection(self.host, timeout=3, proxy=None)
+            connection.request("GET", "/api/v9/gateway", headers=header)   # subscribe works differently in v10
         except (socket.gaierror, TimeoutError, ConnectionResetError):
             connection.close()
             logger.warning("No internet connection. Exiting...")
@@ -2517,9 +2495,9 @@ class Gateway():
         """
         Get a tuple of:
         user update (self) - dict,
-        wether roles have changed - guild_id
-        wether guild roles have changed - (guild_id, role_id)
-        If user_update has only user_id and nick, then its guild_mmember_update event.
+        whether roles have changed - guild_id
+        whether guild roles have changed - (guild_id, role_id)
+        If user_update has only user_id and nick, then its guild_memember_update event.
         """
         if self.user_update:
             cache = (*self.user_update, self.guild_roles_changed)

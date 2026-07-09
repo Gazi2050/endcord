@@ -20,7 +20,7 @@ def get_tenor_gif(url, header=None, proxy=None):
         return
     parsed = urllib.parse.urlsplit(url)
     try:
-        connection = peripherals.get_connection(parsed.netloc, 443, proxy=proxy)
+        connection = peripherals.get_connection(parsed.netloc, proxy=proxy)
         if header:
             connection.request("GET", parsed.path, headers=header)
         else:

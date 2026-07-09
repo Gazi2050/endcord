@@ -117,6 +117,19 @@ def detect_runtime():
     return "source"
 
 
+def get_build_level(support_image, support_media, support_call):
+    """Get build level based on present dependencies"""
+    if support_call or support_media:
+        return "FULL" + (" -media" if not support_call else "") + (" -call" if not support_call else "")
+    if support_image:
+        return "MEDIUM"
+    if not importlib.util.find_spec("Crypto"):
+        return "MICRO"
+    if not importlib.util.find_spec("numpy"):
+        return "MINI"
+    return "LITE"
+
+
 def get_build_info(cythonized, uses_pgcurses, support_image, support_media, support_call):
     """Write build info string"""
     build_info = [detect_runtime()]
@@ -124,12 +137,11 @@ def get_build_info(cythonized, uses_pgcurses, support_image, support_media, supp
         build_info.append("cythonized")
     if uses_pgcurses:
         build_info.append("windowed")
+    build_info.append(f"level={get_build_level(support_image, support_media, support_call)}")
     if support_media:
-        build_info.append("media support")
-    elif support_image:
-        build_info.append("image support")
+        build_info.append("media")
     if support_call:
-        build_info.append("call support")
+        build_info.append("call")
     custom_build = " (CUSTOM BUILD)" if importlib.util.find_spec("_bz2") is None else ""
     version = sys.version
     start = version.find("(++")
