@@ -1,4 +1,4 @@
-prefix<div align="center">
+<div align="center">
 <h1>Endcord</h1>
 <a href="https://github.com/sparklost/endcord?tab=readme-ov-file#features">Features</a> |
 <a href="https://github.com/sparklost/endcord/blob/main/.github/screenshots.md">Screenshots</a> |
